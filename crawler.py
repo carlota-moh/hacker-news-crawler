@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 from bs4.element import ResultSet
 import logging
-from typing import Optional
+from typing import Optional, List
 
 def get_soup(url: str, logger: logging.Logger) -> Optional[BeautifulSoup]:
     """
@@ -48,12 +48,27 @@ def find_elements(soup: type[BeautifulSoup], logger: logging.Logger, element_nam
         List of elements in soup matching specified conditions
     """  
     elements = soup.find_all(element_name, **kwargs)
-    
+
     if len(elements) == 0:
         logger.warning(f"No {element_name} found")
         return None
     
     return elements
+
+def retrieve_entry_data(entries: type[ResultSet], subtext: type[ResultSet]) -> List[dict]:
+    """ Retrieves relevant information from each of the elements """ 
+    
+    all_entries_data = []
+    for entry, subtext in zip(entries, subtext):
+        entry_data = {}
+
+        entry_data["title"] = entry.find("span", {"class": "titleline"}).find("a").get_text()
+        entry_data["rank"] = entry.find("span", {"class": "rank"}).get_text()
+        entry_data["points"] = subtext.find("span", {"class": "score"}).get_text()
+        entry_data["comments"] = subtext.find(lambda tag: tag.name == "a" and "comment" in tag.text).get_text()
+        all_entries_data.append(entry_data)
+    
+    return all_entries_data
 
 if __name__=='__main__':
     from utils import initialize_logger
@@ -69,4 +84,7 @@ if __name__=='__main__':
     soup = get_soup(url=url, logger=logger)
 
     # find elements in soup
-    tr_elements = find_elements(soup=soup, logger=logger, element_name="tr", **{"class": "athing"})
+    entries = find_elements(soup=soup, logger=logger, element_name="tr", **{"class": "athing"})
+    subtext = find_elements(soup=soup, logger=logger, element_name="td", **{"class": "subtext"})
+
+    all_entries_data = retrieve_entry_data(entries=entries, subtext=subtext)

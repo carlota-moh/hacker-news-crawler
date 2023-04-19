@@ -1,5 +1,6 @@
 import json
 import logging
+from typing import List, Union
 
 def initialize_logger(logger_file: str, logger_name: str) -> logging.Logger:
     """ Used for easily initializing logger """
@@ -26,7 +27,7 @@ def initialize_logger(logger_file: str, logger_name: str) -> logging.Logger:
 
     return logger
 
-def write_json(dic: dict, file_path: str, logger: logging.Logger) -> None:
+def write_json(dic: Union[List[dict], dict], file_path: str, logger: logging.Logger) -> None:
     """
     Function used to write data to JSON in a specified file_path
 
@@ -41,7 +42,9 @@ def write_json(dic: dict, file_path: str, logger: logging.Logger) -> None:
     try:
         with open(file_path, "w") as f:
             json.dump(dic, f)
-        logger.info("Successfully written data to file")
+            
+        logger.info(f"Successfully written data to {file_path}")
+
     except FileNotFoundError:
         logger.error("Invalid path")
 
@@ -62,6 +65,8 @@ def read_json(file_path: str, logger: logging.Logger) -> dict:
     try:
         with open(file_path, "r") as f:
             json_data = [json.loads(line) for line in f]
+            logger.info(f"Succesfully loaded data in {file_path}")
             return json_data
+        
     except FileNotFoundError:
         logger.error("Could not read JSON. Invalid path to file")

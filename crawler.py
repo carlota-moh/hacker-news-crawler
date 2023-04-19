@@ -4,6 +4,7 @@ from bs4.element import ResultSet
 import logging
 from typing import Optional, List
 import re
+import time
 
 def get_soup(url: str, logger: logging.Logger) -> Optional[BeautifulSoup]:
     """
@@ -74,14 +75,11 @@ def retrieve_entry_data(entries: type[ResultSet], subtext: type[ResultSet], logg
     for entry, subtext in zip(entries, subtext):
         entry_data = {}
         
-        # entry_data["title"] = entry.find("span", {"class": "titleline"}).find("a").get_text()
+        entry_data["timestamp"] = time.time()
         title_entry = entry.find("span", {"class": "titleline"})
         entry_data["title"] = get_text(entry=title_entry, logger=logger, element_name="a")
-        # entry_data["rank"] = entry.find("span", {"class": "rank"}).get_text()
         entry_data["rank"] = get_text(entry=entry, logger=logger, element_name="span", **{"class": "rank"})
-        # entry_data["points"] = subtext.find("span", {"class": "score"}).get_text()
         entry_data["points"] = get_text(entry=subtext, logger=logger, element_name="span", **{"class": "score"})
-        # entry_data["comments"] = subtext.find(lambda tag: tag.name == "a" and "comment" in tag.text).get_text()
         entry_data["comments"] = get_text(entry=subtext, logger=logger, element_name="a", **{"string": re.compile(r'\bcomments\b')})
         all_entries_data.append(entry_data)
     

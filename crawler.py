@@ -18,13 +18,15 @@ def get_soup(url: str, logger: logging.Logger) -> Optional[BeautifulSoup]:
     -soup:
         BeautifulSoup soup object with HTML content
     """
+    logger.debug(f"Retrieving content from {url}")
     response = requests.get(url)
 
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, "html.parser")
+        logger.info(f"Successfully retrieved content from {url}")
         return soup
     else:
-        logger.warning("Something went wrong... Response code: {}".format(response.status_code))
+        logger.error("Something went wrong... Response code: {}".format(response.status_code))
         return None
 
 def find_elements(soup: type[BeautifulSoup], logger: logging.Logger, element_name: str, **kwargs) -> ResultSet:

@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 from bs4.element import ResultSet
 import logging
 from typing import Optional, List
+import re
 
 def get_soup(url: str, logger: logging.Logger) -> Optional[BeautifulSoup]:
     """
@@ -55,18 +56,33 @@ def find_elements(soup: type[BeautifulSoup], logger: logging.Logger, element_nam
     
     return elements
 
-def retrieve_entry_data(entries: type[ResultSet], subtext: type[ResultSet]) -> List[dict]:
+def get_text(entry, logger, element_name, **kwargs):
+    """ Wrapper for retrieving text from entry element"""
+
+    try:
+        text = entry.find(element_name, **kwargs).get_text()
+        return text
+    
+    except AttributeError as e:
+        logger.warning(f"Encountered error while parsing: {e}")
+        return "NA"
+
+def retrieve_entry_data(entries: type[ResultSet], subtext: type[ResultSet], logger: logging.Logger) -> List[dict]:
     """ Retrieves relevant information from each of the elements """ 
     
     all_entries_data = []
-    
     for entry, subtext in zip(entries, subtext):
         entry_data = {}
         
-        entry_data["title"] = entry.find("span", {"class": "titleline"}).find("a").get_text()
-        entry_data["rank"] = entry.find("span", {"class": "rank"}).get_text()
-        entry_data["points"] = subtext.find("span", {"class": "score"}).get_text()
-        entry_data["comments"] = subtext.find(lambda tag: tag.name == "a" and "comment" in tag.text).get_text()
+        # entry_data["title"] = entry.find("span", {"class": "titleline"}).find("a").get_text()
+        title_entry = entry.find("span", {"class": "titleline"})
+        entry_data["title"] = get_text(entry=title_entry, logger=logger, element_name="a")
+        # entry_data["rank"] = entry.find("span", {"class": "rank"}).get_text()
+        entry_data["rank"] = get_text(entry=entry, logger=logger, element_name="span", **{"class": "rank"})
+        # entry_data["points"] = subtext.find("span", {"class": "score"}).get_text()
+        entry_data["points"] = get_text(entry=subtext, logger=logger, element_name="span", **{"class": "score"})
+        # entry_data["comments"] = subtext.find(lambda tag: tag.name == "a" and "comment" in tag.text).get_text()
+        entry_data["comments"] = get_text(entry=subtext, logger=logger, element_name="a", **{"string": re.compile(r'\bcomments\b')})
         all_entries_data.append(entry_data)
     
     return all_entries_data
@@ -93,10 +109,10 @@ if __name__ == "__main__":
     entries = find_elements(soup=soup, logger=logger, element_name="tr", **{"class": "athing"})
     subtext = find_elements(soup=soup, logger=logger, element_name="td", **{"class": "subtext"})
 
-    all_entries_data = retrieve_entry_data(entries=entries, subtext=subtext)
+    all_entries_data = retrieve_entry_data(entries=entries, subtext=subtext, logger=logger)
 
     # write information to file
-    # json_path = os.path.join(data_dir, "./all_entries_data.json")
-    # write_json(dic=all_entries_data, file_path=json_path, logger=logger)
+    json_path = os.path.join(data_dir, "./all_entries_data.json")
+    write_json(dic=all_entries_data, file_path=json_path, logger=logger)
 
 

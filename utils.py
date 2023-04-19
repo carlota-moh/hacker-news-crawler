@@ -64,7 +64,7 @@ def read_json(file_path: str, logger: logging.Logger) -> dict:
     """
     try:
         with open(file_path, "r") as f:
-            json_data = [json.loads(line) for line in f]
+            json_data = [json.loads(line) for line in f][0]
             logger.info(f"Succesfully loaded data in {file_path}")
             return json_data
         

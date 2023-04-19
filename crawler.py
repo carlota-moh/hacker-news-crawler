@@ -59,9 +59,10 @@ def retrieve_entry_data(entries: type[ResultSet], subtext: type[ResultSet]) -> L
     """ Retrieves relevant information from each of the elements """ 
     
     all_entries_data = []
+    
     for entry, subtext in zip(entries, subtext):
         entry_data = {}
-
+        
         entry_data["title"] = entry.find("span", {"class": "titleline"}).find("a").get_text()
         entry_data["rank"] = entry.find("span", {"class": "rank"}).get_text()
         entry_data["points"] = subtext.find("span", {"class": "score"}).get_text()
@@ -70,11 +71,16 @@ def retrieve_entry_data(entries: type[ResultSet], subtext: type[ResultSet]) -> L
     
     return all_entries_data
 
-if __name__=='__main__':
-    from utils import initialize_logger
-    # initialize logger
+if __name__ == "__main__":
+    import os
+    from utils import initialize_logger, write_json
 
-    logger_file = "./logs/crawler.log"
+    # set paths
+    data_dir = "./data/"
+    log_dir = "./logs/"
+    
+    # initialize logger
+    logger_file = os.path.join(log_dir, "crawler.log")
     logger_name = "crawler"
     logger = initialize_logger(logger_file=logger_file, logger_name=logger_name)
 
@@ -88,3 +94,9 @@ if __name__=='__main__':
     subtext = find_elements(soup=soup, logger=logger, element_name="td", **{"class": "subtext"})
 
     all_entries_data = retrieve_entry_data(entries=entries, subtext=subtext)
+
+    # write information to file
+    # json_path = os.path.join(data_dir, "./all_entries_data.json")
+    # write_json(dic=all_entries_data, file_path=json_path, logger=logger)
+
+

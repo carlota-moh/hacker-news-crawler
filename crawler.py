@@ -47,13 +47,13 @@ def find_elements(soup: type[BeautifulSoup], logger: logging.Logger, element_nam
     -elements: list
         List of elements in soup matching specified conditions
     """  
-    try:
-        elements = soup.find_all(element_name, **kwargs)
-        if len(elements) == 0:
-            logger.warning("No %s found") % element_name
-        return elements
-    except:
-        logger.warning("No %s found") % element_name
+    elements = soup.find_all(element_name, **kwargs)
+    
+    if len(elements) == 0:
+        logger.warning(f"No {element_name} found")
+        return None
+    
+    return elements
 
 if __name__=='__main__':
     from utils import initialize_logger

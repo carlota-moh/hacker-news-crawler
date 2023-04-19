@@ -1,4 +1,5 @@
 import re
+from typing import List
 
 def remove_unicode(text: str) -> str:
     """ Function for removing unicode characters """
@@ -10,7 +11,14 @@ def get_numbers(text: str) -> int:
     if match:
         return int(match.group())
     else:
-        return None
+        return 0
+    
+def filter_dic(dic: str, field: str, limit: int) -> bool:
+    return True if len(dic[field]) > limit else False
+
+def sort_by_field(entries_list: List[dict], field: str) -> List[dict]:
+    return sorted(entries_list, key=lambda x: x[field], reverse=True)
+
 
 def clean_fields(dic: dict) -> dict:
     """ 
@@ -24,7 +32,7 @@ def clean_fields(dic: dict) -> dict:
     clean_dict["rank"] = get_numbers(text=clean_dict["rank"])
     clean_dict["points"] = get_numbers(text=clean_dict["points"])
     clean_dict["comments"] = get_numbers(text=clean_dict["comments"])
-    
+
     return clean_dict 
 
 if __name__ == "__main__":
@@ -46,4 +54,7 @@ if __name__ == "__main__":
 
     # clean fields
     all_entries_clean = list(map(clean_fields, all_entries_data))
-    print(all_entries_clean)
+    big_title_entries = list(filter(lambda dic: filter_dic(dic, field="title", limit=5), all_entries_clean))
+    small_title_entries = [dic for dic in all_entries_clean if dic not in big_title_entries]
+    sorted_big_title_entries = sort_by_field(big_title_entries, field="comments")
+    sorted_small_title_entries = sort_by_field(big_title_entries, field="points")

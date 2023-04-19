@@ -52,3 +52,19 @@ def find_elements(soup: type[BeautifulSoup], logger: logging.Logger, element_nam
         return elements
     except:
         logger.warning("No %s found") % element_name
+
+if __name__=='__main__':
+    from utils import initialize_logger
+    # initialize logger
+
+    logger_file = "./logs/crawler.log"
+    logger_name = "crawler"
+    logger = initialize_logger(logger_file=logger_file, logger_name=logger_name)
+
+    url = "https://news.ycombinator.com/"
+
+    # retrieve HTML content
+    soup = get_soup(url=url, logger=logger)
+
+    # find elements in soup
+    tr_elements = find_elements(soup=soup, logger=logger, element_name="tr", **{"class": "athing"})

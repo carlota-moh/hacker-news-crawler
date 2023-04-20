@@ -30,3 +30,29 @@ class CustomLogger(logging.Logger):
         # Finally, add the handlers to the logger.
         self.logger.addHandler(file_handler)
         self.logger.addHandler(console_handler)
+
+class Serializer:
+    """ Class used for serializing data to file """
+    def __init__(self, logger) -> None:
+        self.logger = logger
+
+    def serialize(self, dic: dict, file_path: str) -> None:
+        """
+        Function used to write data to JSON in a specified file_path
+
+        Params:
+        -dic: dictionary
+            Python dictionary to be written to file
+
+        -file_path: string
+            final location of the file
+
+        """
+        try:
+            with open(file_path, "w") as f:
+                json.dump(dic, f)
+                
+            self.logger.info(f"Successfully written data to {file_path}")
+
+        except FileNotFoundError:
+            self.logger.error("Invalid path")

@@ -1,18 +1,18 @@
 if __name__=="__main__":
     import os
-    from utils import initialize_logger, write_json
+    from datetime import datetime
+    from utils import CustomLogger, Serializer
     from crawler import Crawler
     from data_parser import Retriever, Cleaner, Sorter
-    from data_structure import Entry, EntryEncoder, Serializer
 
     # set paths
     data_dir = "./data/"
     log_dir = "./logs/"
     
     # initialize logger
-    logger_file = os.path.join(log_dir, "crawler.log")
+    logger_file = os.path.join(log_dir, "website-crawler.log")
     logger_name = "crawler"
-    logger = initialize_logger(logger_file=logger_file, logger_name=logger_name)
+    logger = CustomLogger(logger_file=logger_file, name=logger_name).logger
 
     url = "https://news.ycombinator.com/"
 
@@ -43,7 +43,15 @@ if __name__=="__main__":
     sorted_big_title_entries = sorter.sort_by_field(big_title_entries, field="comments")
     sorted_small_title_entries = sorter.sort_by_field(big_title_entries, field="points")
 
-    print(sorted_big_title_entries, '\n')
-    print(sorted_small_title_entries, '\n')
+    # save data to file
+    serializer = Serializer(logger=logger)
 
+    # get current datetime for saving 
+    now = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    big_title_entries_path = os.path.join(data_dir, f"sorted_big_title_entries_{now}.json")
+    serializer.serialize(sorted_big_title_entries, big_title_entries_path)
+
+    small_title_entries_path = os.path.join(data_dir, f"sorted_small_title_entries_{now}.json")
+    serializer.serialize(sorted_small_title_entries, small_title_entries_path)
 

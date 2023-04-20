@@ -1,6 +1,6 @@
 import time
 import re
-from typing import List
+from typing import List, Optional, Union
 from bs4 import ResultSet
 
 class Retriever:
@@ -17,7 +17,7 @@ class Retriever:
             self.logger.warning(f"Encountered error while parsing: {e}")
             return "NA"
     
-    def retrieve_entry_data(self, entry: type[ResultSet], subtext: type[ResultSet]) -> List[dict]:
+    def retrieve_entry_data(self, entry: type[ResultSet], subtext: type[ResultSet]) -> dict:
         """ Retrieves relevant information from each entry """ 
         
         entry_data = {}
@@ -63,6 +63,8 @@ class Cleaner:
 
         self.clean_dict = clean_dict
 
+        return self.clean_dict
+
 class Sorter:
     """ Class used for filtering and sorting dictionaries """
 
@@ -71,12 +73,10 @@ class Sorter:
 
     def filter_dic(self, dic: str, field: str, limit: int) -> bool:
         """ Filter a dictionary by the value of specified field """
-        if isinstance(dic[field], (int, float)):
-            return True if len(dic[field]) > limit else False
-        else:
-            raise ValueError(
-                f"field argument must be of type int or float. Found type {type(dic[field])}"
-            )
+        if dic[field] == "NA":
+            return False       
+        
+        return True if len(dic[field]) > limit else False
 
     def sort_by_field(self, entries_list: List[dict], field: str, reverse: bool=True) -> List[dict]:
         """ Function used for sorting a list of entries according to the value of a field """

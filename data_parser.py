@@ -1,60 +1,83 @@
+import time
 import re
 from typing import List
+from bs4 import ResultSet
 
-def remove_unicode(text: str) -> str:
-    """ Function for removing unicode characters """
-    return text.encode("ascii", "ignore").decode()
+class Retriever:
+    """ Class for retrieving text from entries """
+    def __init__(self, logger) -> None:
+        self.logger = logger
 
-def get_numbers(text: str) -> int:
-    match = re.match(r"^\d+", text)
-
-    if match:
-        return int(match.group())
-    else:
-        return 0
+    def get_text(self, entry: type[ResultSet], element_name: str, **kwargs) -> str:
+        try:
+            text = entry.find(element_name, **kwargs).get_text()
+            return text
+        
+        except AttributeError as e:
+            self.logger.warning(f"Encountered error while parsing: {e}")
+            return "NA"
     
-def filter_dic(dic: str, field: str, limit: int) -> bool:
-    return True if len(dic[field]) > limit else False
+    def retrieve_entry_data(self, entry: type[ResultSet], subtext: type[ResultSet]) -> List[dict]:
+        """ Retrieves relevant information from each entry """ 
+        
+        entry_data = {}
+        entry_data["timestamp"] = time.time()
+        title_entry = entry.find("span", {"class": "titleline"})
+        entry_data["title"] = self.get_text(entry=title_entry, element_name="a")
+        entry_data["rank"] = self.get_text(entry=entry, element_name="span", **{"class": "rank"})
+        entry_data["points"] = self.get_text(entry=subtext, element_name="span", **{"class": "score"})
+        entry_data["comments"] = self.get_text(entry=subtext, element_name="a", **{"string": re.compile(r'\bcomments\b')})
+                    
+        return entry_data
+        
 
-def sort_by_field(entries_list: List[dict], field: str) -> List[dict]:
-    return sorted(entries_list, key=lambda x: x[field], reverse=True)
+class Cleaner:
+    """ Class used for cleaning up data prior to saving it in a class """
+    def __init__(self, logger) -> None:
+        self.logger = logger
+        self.clean_dict = None
 
-
-def clean_fields(dic: dict) -> dict:
-    """ 
-    Function used for cleaning and preparing the fields'
-    format   
-    """
-    # remove unicode characters
-    clean_dict = dict((k, remove_unicode(v)) if isinstance(v, str) else (k, v) for k, v in dic.items())
-
-    # apply additional formatting for rank and points
-    clean_dict["rank"] = get_numbers(text=clean_dict["rank"])
-    clean_dict["points"] = get_numbers(text=clean_dict["points"])
-    clean_dict["comments"] = get_numbers(text=clean_dict["comments"])
-
-    return clean_dict 
-
-if __name__ == "__main__":
-    import os
-    from utils import initialize_logger, read_json
-
-    # set paths
-    data_dir = "./data/"
-    log_dir = "./logs/"
+    def remove_unicode(self, text: str) -> str:
+        """ Function for removing unicode characters """
+        return text.encode("ascii", "ignore").decode()
     
-    # initialize logger
-    logger_file = os.path.join(log_dir, "data_parser.log")
-    logger_name = "parser"
-    logger = initialize_logger(logger_file=logger_file, logger_name=logger_name) 
+    def get_numbers(self, text: str) -> int:
+        match = re.match(r"^\d+", text)
 
-    # load data
-    json_path = os.path.join(data_dir, "./all_entries_data.json")
-    all_entries_data = read_json(file_path=json_path, logger=logger)
+        if match:
+            return int(match.group())
+        else:
+            return 0
 
-    # clean fields
-    all_entries_clean = list(map(clean_fields, all_entries_data))
-    big_title_entries = list(filter(lambda dic: filter_dic(dic, field="title", limit=5), all_entries_clean))
-    small_title_entries = [dic for dic in all_entries_clean if dic not in big_title_entries]
-    sorted_big_title_entries = sort_by_field(big_title_entries, field="comments")
-    sorted_small_title_entries = sort_by_field(big_title_entries, field="points")
+    def clean_fields(self, dic: dict, *numeric_fields) -> dict:
+        """ 
+        Function used for cleaning and preparing the fields'
+        format   
+        """
+        # remove unicode characters
+        clean_dict = dict((k, self.remove_unicode(v)) if isinstance(v, str) else (k, v) for k, v in dic.items())
+
+        # apply additional formatting for numeric fields
+        for field in numeric_fields:
+            clean_dict[field] = self.get_numbers(text=clean_dict[field])
+
+        self.clean_dict = clean_dict
+
+class Sorter:
+    """ Class used for filtering and sorting dictionaries """
+
+    def __init__(self, logger) -> None:
+        self.logger = logger
+
+    def filter_dic(self, dic: str, field: str, limit: int) -> bool:
+        """ Filter a dictionary by the value of specified field """
+        if isinstance(dic[field], (int, float)):
+            return True if len(dic[field]) > limit else False
+        else:
+            raise ValueError(
+                f"field argument must be of type int or float. Found type {type(dic[field])}"
+            )
+
+    def sort_by_field(self, entries_list: List[dict], field: str, reverse: bool=True) -> List[dict]:
+        """ Function used for sorting a list of entries according to the value of a field """
+        return sorted(entries_list, key=lambda x: x[field], reverse=reverse)

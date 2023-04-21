@@ -1,5 +1,7 @@
 import json
 import logging
+from os import makedirs
+from os.path import exists
 
 class CustomLogger:
     def __init__(self, name: str, logger_file) -> None:
@@ -57,3 +59,9 @@ class Serializer:
 
         except FileNotFoundError:
             self.logger.error("Invalid path")
+
+def dir_maker(dir_path: str) -> None:
+        if not exists(dir_path):
+            makedirs(dir_path)
+        else:
+            pass

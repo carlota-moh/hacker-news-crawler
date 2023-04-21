@@ -1,21 +1,10 @@
-if __name__=="__main__":
-    import os
-    from datetime import datetime
-    from utils import CustomLogger, Serializer
-    from crawler import Crawler
-    from data_parser import Retriever, Cleaner, Sorter
+from logging import Logger
+from datetime import datetime
+from utils import Serializer
+from crawler import Crawler
+from data_parser import Retriever, Cleaner, Sorter
 
-    # set paths
-    data_dir = "./data/"
-    log_dir = "./logs/"
-    
-    # initialize logger
-    logger_file = os.path.join(log_dir, "website-crawler.log")
-    logger_name = "crawler"
-    logger = CustomLogger(logger_file=logger_file, name=logger_name).logger
-
-    url = "https://news.ycombinator.com/"
-
+def main(url: str, logger: type[Logger]) -> None:
     # Instantiate crawler
     web_crawler = Crawler(logger=logger)
 
@@ -41,7 +30,7 @@ if __name__=="__main__":
     small_title_entries = [dic for dic in clean_entries if dic not in big_title_entries]
 
     sorted_big_title_entries = sorter.sort_by_field(big_title_entries, field="comments")
-    sorted_small_title_entries = sorter.sort_by_field(big_title_entries, field="points")
+    sorted_small_title_entries = sorter.sort_by_field(small_title_entries, field="points")
 
     # save data to file
     serializer = Serializer(logger=logger)
@@ -54,4 +43,28 @@ if __name__=="__main__":
 
     small_title_entries_path = os.path.join(data_dir, f"sorted_small_title_entries_{now}.json")
     serializer.serialize(sorted_small_title_entries, small_title_entries_path)
+     
+if __name__=="__main__":
+    import os
+    from utils import CustomLogger, dir_maker
+    
+    # set paths
+    data_dir = "./data/"
+    log_dir = "./logs/"
+
+    # make directories if needed
+    dir_maker(data_dir)
+    dir_maker(log_dir)
+    
+    # initialize logger
+    logger_file = os.path.join(log_dir, "website-crawler.log")
+    logger_name = "crawler"
+    logger = CustomLogger(logger_file=logger_file, name=logger_name).logger
+
+    url = "https://news.ycombinator.com/"
+
+    # execute code
+    main(url=url, logger=logger)
+
+    
 

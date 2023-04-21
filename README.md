@@ -8,6 +8,14 @@ This is a small project dedicated towards scraping information from Hacker News 
 + Sorter: The sorter class takes care of filtering and sorting the lists of dictionaries.
 + Serializer: Finally, the serializer class is used for saving data to file.
 
+To execute the code, run the following command from the root directory:
+
+```bash
+python3 news-crawler
+```
+
+The program will automatically create directories for storing data and program logs. Once executed, you can head to the `data/` directory and check the generated output files. If you do not wish to execute the code, I have already provided a couple of examples of the produced output within the `data/` directory. Feel free to check them out!
+
 # Future improvements
 
 Due to the time limitations, the implementations so far are limited. Future improvements upon this project would include:

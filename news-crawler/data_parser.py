@@ -76,7 +76,7 @@ class Sorter:
         if dic[field] == "NA":
             return False       
         
-        return True if len(dic[field]) > limit else False
+        return True if len(dic[field].split(" ")) > limit else False
 
     def sort_by_field(self, entries_list: List[dict], field: str, reverse: bool=True) -> List[dict]:
         """ Function used for sorting a list of entries according to the value of a field """

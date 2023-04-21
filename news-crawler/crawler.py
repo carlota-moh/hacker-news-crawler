@@ -2,27 +2,16 @@ import requests
 from bs4 import BeautifulSoup
 from bs4.element import ResultSet
 import logging
-from typing import Optional, List
-import re
-import time
+from typing import Optional
 
 class Crawler:
+    """ Class used for retrieving content from URL """
     def __init__(self, logger: logging.Logger) -> None:
         self.logger = logger
         self.soup = None
 
     def get_soup(self, url: str) -> Optional[BeautifulSoup]:
-        """
-        Function used for loading HTML content into soup
-
-        INPUTS:
-        -url: string
-            Desired url from whichi to retrieve HTML
-        
-        RETURNS:
-        -soup:
-            BeautifulSoup soup object with HTML content
-        """
+        """ Method used for loading HTML content into soup """
         self.logger.debug(f"Retrieving content from {url}")
         response = requests.get(url)
 
@@ -35,19 +24,7 @@ class Crawler:
             self.soup = None
 
     def find_elements(self, element_name: str, **kwargs) -> ResultSet:
-        """
-        Function used for finding elements by name within soup
-
-        INPUTS:
-        -element_name: string
-            Name of the HTML tag by which to search for element
-        -**kwargs:
-            Other keyword arguments used for finding the element
-        
-        RETURNS:
-        -elements: list
-            List of elements in soup matching specified conditions
-        """  
+        """ Function used for finding elements by name within soup """  
         elements = self.soup.find_all(element_name, **kwargs)
 
         if len(elements) == 0:

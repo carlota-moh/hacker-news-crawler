@@ -4,13 +4,14 @@ from os import makedirs
 from os.path import exists
 
 class CustomLogger:
+    """ Class used for initializing logger object """
     def __init__(self, name: str, logger_file) -> None:
         self.name = name
         self.logger_file = logger_file
         self.logger = self.initialize_logger()
     
     def initialize_logger(self) -> None:
-        """ Used for easily initializing logger configuration """
+        """ Method used for handling logger configuration """
 
         # Initialize logger
         logger = logging.getLogger(name=self.name)
@@ -40,17 +41,7 @@ class Serializer:
         self.logger = logger
 
     def serialize(self, dic: dict, file_path: str) -> None:
-        """
-        Function used to write data to JSON in a specified file_path
-
-        Params:
-        -dic: dictionary
-            Python dictionary to be written to file
-
-        -file_path: string
-            final location of the file
-
-        """
+        """ Method used to write data to JSON in a specified filepath """
         try:
             with open(file_path, "w") as f:
                 json.dump(dic, f)
@@ -61,7 +52,8 @@ class Serializer:
             self.logger.error("Invalid path")
 
 def dir_maker(dir_path: str) -> None:
-        if not exists(dir_path):
-            makedirs(dir_path)
-        else:
-            pass
+    """ Auxiliary function for making directories """
+    if not exists(dir_path):
+        makedirs(dir_path)
+    else:
+        pass

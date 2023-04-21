@@ -1,6 +1,6 @@
 import time
 import re
-from typing import List, Optional, Union
+from typing import List
 from bs4 import ResultSet
 
 class Retriever:
@@ -9,6 +9,7 @@ class Retriever:
         self.logger = logger
 
     def get_text(self, entry: type[ResultSet], element_name: str, **kwargs) -> str:
+        """ Method for retrieving text from an entry """
         try:
             text = entry.find(element_name, **kwargs).get_text()
             return text
@@ -18,7 +19,7 @@ class Retriever:
             return "NA"
     
     def retrieve_entry_data(self, entry: type[ResultSet], subtext: type[ResultSet]) -> dict:
-        """ Retrieves relevant information from each entry """ 
+        """ Method used for retrieving relevant information from each entry """ 
         
         entry_data = {}
         entry_data["timestamp"] = time.time()
@@ -38,10 +39,11 @@ class Cleaner:
         self.clean_dict = None
 
     def remove_unicode(self, text: str) -> str:
-        """ Function for removing unicode characters """
+        """ Method for removing unicode characters """
         return text.encode("ascii", "ignore").decode()
     
     def get_numbers(self, text: str) -> int:
+        """ Method for extracting numeric character from text and turning them into int """
         match = re.match(r"^\d+", text)
 
         if match:
@@ -50,10 +52,7 @@ class Cleaner:
             return 0
 
     def clean_fields(self, dic: dict, *numeric_fields) -> dict:
-        """ 
-        Function used for cleaning and preparing the fields'
-        format   
-        """
+        """ Method used for cleaning and preparing the fields' format """
         # remove unicode characters
         clean_dict = dict((k, self.remove_unicode(v)) if isinstance(v, str) else (k, v) for k, v in dic.items())
 
@@ -72,12 +71,12 @@ class Sorter:
         self.logger = logger
 
     def filter_dic(self, dic: str, field: str, limit: int) -> bool:
-        """ Filter a dictionary by the value of specified field """
+        """ Method a dictionary by the value of specified field """
         if dic[field] == "NA":
             return False       
         
         return True if len(dic[field].split(" ")) > limit else False
 
     def sort_by_field(self, entries_list: List[dict], field: str, reverse: bool=True) -> List[dict]:
-        """ Function used for sorting a list of entries according to the value of a field """
+        """ Method used for sorting a list of entries according to the value of a field """
         return sorted(entries_list, key=lambda x: x[field], reverse=reverse)

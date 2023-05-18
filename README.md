@@ -22,6 +22,6 @@ Due to the time limitations, the implementations so far are limited. Future impr
 
 1. Design automatic ingestion pipelines to periodically parse the content from the website. 
 
-2. Developing automated test for testing the different functionalities using libraries such as `unittest` or `pytest`.
+2. Developing automated test for testing the different functionalities using libraries such as `unittest` or `pytest` :white_check_mark:
 
 3. Implementing classes for modelling entries, which could be useful for future storage of content in databases using appropriate frameworks (e.g.: `django`).

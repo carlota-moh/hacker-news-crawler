@@ -35,14 +35,8 @@ def main(url: str, logger: type[Logger]) -> None:
     # save data to file
     serializer = Serializer(logger=logger)
 
-    # get current datetime for saving 
-    now = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-    big_title_entries_path = os.path.join(data_dir, f"sorted_big_title_entries_{now}.json")
-    serializer.serialize(sorted_big_title_entries, big_title_entries_path)
-
-    small_title_entries_path = os.path.join(data_dir, f"sorted_small_title_entries_{now}.json")
-    serializer.serialize(sorted_small_title_entries, small_title_entries_path)
+    serializer.send_bulk_data(sorted_big_title_entries)
+    serializer.send_bulk_data(sorted_small_title_entries)
      
 if __name__=="__main__":
     import os

@@ -2,6 +2,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException
 from models import Entries
 from services import engine, create_db_and_tables
+from sqlmodel import Session
 
 # Create FastAPI instance
 app = FastAPI()
@@ -20,3 +21,17 @@ app.add_middleware(
 @app.on_event('startup')
 def on_startup():
     create_db_and_tables()
+
+@app.post('/add-entry/')
+def add_entry(entry: Entries):
+    with Session(engine) as session:
+        exist = session.query(Entries).filter(
+            Entries.id == entry.id).first()
+        if exist:
+            raise HTTPException(
+                status_code=400, detail="Entry already exists")
+        
+        session.add(entry)
+        session.commit()
+        session.refresh(entry)
+        return entry

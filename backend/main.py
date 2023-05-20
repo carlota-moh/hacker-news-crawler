@@ -37,6 +37,15 @@ def add_entry(entry: Entries):
         session.commit()
         session.refresh(entry)
         return entry
+
+@app.post('/add-entries-bulk/')
+def add_bulk_entry(entries: List[Entries]):
+    with Session(engine) as session:
+        entry_jsons = [entry.dict() for entry in entries]
+        session.bulk_insert_mappings(Entries, entry_jsons)
+        session.commit()
+        return entries
+
     
 @app.get('/entries/')
 def get_entries():

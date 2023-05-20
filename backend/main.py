@@ -3,6 +3,7 @@ from fastapi import FastAPI, HTTPException
 from models import Entries
 from services import engine, create_db_and_tables
 from sqlmodel import Session
+from typing import List
 
 # Create FastAPI instance
 app = FastAPI()
@@ -21,12 +22,13 @@ app.add_middleware(
 @app.on_event('startup')
 def on_startup():
     create_db_and_tables()
-
+       
 @app.post('/add-entry/')
 def add_entry(entry: Entries):
     with Session(engine) as session:
         exist = session.query(Entries).filter(
-            Entries.id == entry.id).first()
+            Entries.title == entry.title).first()
+        
         if exist:
             raise HTTPException(
                 status_code=400, detail="Entry already exists")
@@ -35,3 +37,9 @@ def add_entry(entry: Entries):
         session.commit()
         session.refresh(entry)
         return entry
+    
+@app.get('/entries/')
+def get_entries():
+    with Session(engine) as session:
+        entries = session.query(Entries).all()
+        return entries

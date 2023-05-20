@@ -1,7 +1,9 @@
 import json
 import logging
+import requests
 from os import makedirs
 from os.path import exists
+from typing import List
 
 class CustomLogger:
     """ Class used for initializing logger object """
@@ -50,6 +52,20 @@ class Serializer:
 
         except FileNotFoundError:
             self.logger.error("Invalid path")
+
+    def send_bulk_data(self, entries: List[dict]):
+        """ Method used for sending data to backend """
+        self.logger.info("Sending data to backend")
+        url = "http://localhost:8000/add-entries-bulk/"
+        headers = {'Content-Type': 'application/json'}
+        data = json.dumps(entries)
+        req = requests.post(url, headers=headers, data=data)
+        
+        if req.status_code == 200:
+            self.logger.info("Successfully sent data to backend")
+            
+        else:
+            self.logger.error("Failed to send data to backend" % req.status_code)
 
 def dir_maker(dir_path: str) -> None:
     """ Auxiliary function for making directories """

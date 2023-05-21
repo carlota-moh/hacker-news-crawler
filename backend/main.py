@@ -22,6 +22,10 @@ app.add_middleware(
 @app.on_event('startup')
 def on_startup():
     create_db_and_tables()
+
+@app.get('/')
+def root():
+    return {"message": "Hello World!"}
        
 @app.post('/add-entry/')
 def add_entry(entry: Entries):

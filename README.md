@@ -20,8 +20,36 @@ The program will automatically create directories for storing data and program l
 
 Due to the time limitations, the implementations so far are limited. Future improvements upon this project would include:
 
-1. Design automatic ingestion pipelines to periodically parse the content from the website. 
+1. Developing automated test for testing the different functionalities using libraries such as `unittest` or `pytest` :white_check_mark:
 
-2. Developing automated test for testing the different functionalities using libraries such as `unittest` or `pytest` :white_check_mark:
+2. Implementing classes for modelling entries, which could be useful for storage of content in databases using appropriate frameworks (e.g.: `fastAPI`) :white_check_mark:
 
-3. Implementing classes for modelling entries, which could be useful for future storage of content in databases using appropriate frameworks (e.g.: `django`).
+3. Storing data into a database (e.g.: `PostgresSQL`) :white_check_mark:
+
+4. Dockerizing API and database :white_check_mark:
+
+# Instructions for running the code :computer:
+
+In order to run the dockerized version of the code, you can clone the repository into your computer and run the following command from the terminal:
+
+```bash
+
+docker-compose up --build
+
+```
+
+The above command will build the Docker images for the FastAPI application and create two new containers: hacker-db (which will contain a dockerized PostgreSQL database) and hacker-fastapi (which will contain the dockerized FastAPI application). You can now run the main application using the following command:
+
+```bash
+
+python3 newscrawler
+
+```
+
+Once the application has finished running, you can use a cURL command to retrieve the data that has been added to the database:
+
+```bash
+
+curl -X GET "http://localhost:8000/entries/" -H  "accept: application/json"
+
+```
